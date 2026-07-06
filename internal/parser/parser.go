@@ -26,6 +26,7 @@ func New(tokens []lexer.Token) *Parser {
 }
 
 func (p *Parser) Parse() []SyntaxError {
+	// Esta función revisa si el programa tiene una forma correcta.
 	if len(p.tokens) == 0 {
 		return p.errors
 	}
@@ -44,6 +45,7 @@ func (p *Parser) Parse() []SyntaxError {
 }
 
 func (p *Parser) parseDeclarations() {
+	// Aquí se revisan las variables declaradas al inicio del programa.
 	p.consume("var")
 	for p.current() != nil && p.current().Type == lexer.IDENTIFIER {
 		p.consumeID()
@@ -54,6 +56,7 @@ func (p *Parser) parseDeclarations() {
 }
 
 func (p *Parser) parseStatement() {
+	// Cada instrucción del programa se revisa por separado.
 	tok := p.current()
 	if tok == nil {
 		return
@@ -75,6 +78,7 @@ func (p *Parser) parseStatement() {
 }
 
 func (p *Parser) parseIf() {
+	// Se revisa la estructura de un if y sus ramas.
 	p.consume("if")
 	p.parseExpression()
 	p.consume("then")
@@ -86,6 +90,7 @@ func (p *Parser) parseIf() {
 }
 
 func (p *Parser) parseWhile() {
+	// Se revisa la estructura de un while.
 	p.consume("while")
 	p.parseExpression()
 	p.consume("do")
@@ -93,6 +98,7 @@ func (p *Parser) parseWhile() {
 }
 
 func (p *Parser) parseAssignment() {
+	// Se revisa que una asignación tenga el formato correcto.
 	p.consumeID()
 	p.expect(":=")
 	p.parseExpression()
@@ -100,6 +106,7 @@ func (p *Parser) parseAssignment() {
 }
 
 func (p *Parser) parseExpression() {
+	// Aquí se arma una expresión con sus partes pequeñas.
 	p.parseTerm()
 	for p.current() != nil && strings.ContainsRune("+-=<>!", rune(p.current().Value[0])) {
 		p.advance()
@@ -108,6 +115,7 @@ func (p *Parser) parseExpression() {
 }
 
 func (p *Parser) parseTerm() {
+	// Cada parte de la expresión se revisa una por una.
 	tok := p.current()
 	if tok == nil {
 		p.errorf("Expresión incompleta")

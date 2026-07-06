@@ -3,7 +3,7 @@ package lexer
 // TokenType representa la categoría de un token (un número entero)
 type TokenType int
 
-// Definición de todas las categorías de tokens posibles en nuestro lenguaje
+// Cada token tiene un nombre para saber qué clase de palabra es.
 const (
 	IDENTIFIER  TokenType = iota // 0: Nombres de variables (ej: edad, x, suma)
 	ASSIGN                       // 1: El símbolo de asignación (:=)

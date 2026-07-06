@@ -34,6 +34,7 @@ func New() *Lexer {
 }
 
 func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
+	// Este bloque convierte el código en piezas pequeñas llamadas tokens.
 	l.source = code
 	l.lines = strings.Split(code, "\n")
 	l.tokens = []Token{}
@@ -49,7 +50,7 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 
 		ch := l.source[l.pos]
 
-		// Comentarios multilinea { ... }
+		// Si encuentra un comentario, lo ignora para no confundir al analizador.
 		if ch == '{' {
 			startLine := l.currentLine
 			l.pos++
@@ -76,7 +77,7 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 			continue
 		}
 
-		// Cadenas '...' o "..."
+		// Las cadenas se guardan completas para que no se rompan.
 		if ch == '"' || ch == '\'' {
 			quote := byte(ch)
 			startLine := l.currentLine
@@ -104,7 +105,7 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 			continue
 		}
 
-		// Operadores dobles :=, <>, <=, >=
+		// Aquí se reconocen símbolos como := y otros operadores dobles.
 		if l.pos+1 < len(l.source) {
 			twoChar := l.source[l.pos : l.pos+2]
 			if twoChar == ":=" || twoChar == "<>" || twoChar == "<=" || twoChar == ">=" {
@@ -137,7 +138,7 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 			continue
 		}
 
-		// Números
+		// Si ve un número, lo clasifica como entero o real.
 		if unicode.IsDigit(rune(ch)) {
 			start := l.pos
 			dots := 0
@@ -165,7 +166,7 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 			continue
 		}
 
-		// Identificadores y palabras clave
+		// Aquí se reconocen los nombres de variables y las palabras reservadas.
 		if unicode.IsLetter(rune(ch)) || ch == '_' {
 			start := l.pos
 			for l.pos < len(l.source) && (unicode.IsLetter(rune(l.source[l.pos])) || unicode.IsDigit(rune(l.source[l.pos])) || l.source[l.pos] == '_') {
@@ -180,7 +181,7 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 			continue
 		}
 
-		// Caracter inválido
+		// Si aparece algo raro, se marca como error para que el usuario lo corrija.
 		l.errors = append(l.errors, SyntaxError{
 			Line:    l.currentLine,
 			Message: fmt.Sprintf("Carácter inválido: \"%s\"", string(ch)),

@@ -30,6 +30,7 @@ func New() *SemanticAnalyzer {
 }
 
 func (s *SemanticAnalyzer) Analyze(tokens []lexer.Token) (map[string]Symbol, []SemanticError) {
+	// Primero se ordena la información y luego se revisan los tipos.
 	s.symbols = make(map[string]Symbol)
 	s.errors = []SemanticError{}
 
@@ -44,6 +45,7 @@ func (s *SemanticAnalyzer) Analyze(tokens []lexer.Token) (map[string]Symbol, []S
 }
 
 func (s *SemanticAnalyzer) filterComments(tokens []lexer.Token) []lexer.Token {
+	// Se quitan los comentarios porque no sirven para revisar tipos.
 	result := []lexer.Token{}
 	for _, t := range tokens {
 		if t.Type != lexer.COMMENT {
@@ -54,6 +56,7 @@ func (s *SemanticAnalyzer) filterComments(tokens []lexer.Token) []lexer.Token {
 }
 
 func (s *SemanticAnalyzer) buildSymbolTable(tokens []lexer.Token) {
+	// Aquí se guardan las variables y su tipo para usarlas después.
 	i := 0
 	for i < len(tokens) {
 		if i < len(tokens) && strings.EqualFold(tokens[i].Value, "var") {
@@ -84,6 +87,7 @@ func (s *SemanticAnalyzer) buildSymbolTable(tokens []lexer.Token) {
 }
 
 func (s *SemanticAnalyzer) checkAssignments(tokens []lexer.Token) {
+	// Se revisa si cada asignación tiene sentido según el tipo.
 	i := 0
 	for i < len(tokens) {
 		if tokens[i].Type == lexer.IDENTIFIER {
@@ -128,6 +132,7 @@ func (s *SemanticAnalyzer) checkAssignments(tokens []lexer.Token) {
 }
 
 func (s *SemanticAnalyzer) checkExpressionTypes(targetType string, expr []lexer.Token, line int) {
+	// Se compara lo que se asigna con el tipo esperado.
 	for _, tok := range expr {
 		var currentType string
 		switch tok.Type {

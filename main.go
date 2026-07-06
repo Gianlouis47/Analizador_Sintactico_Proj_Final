@@ -12,6 +12,7 @@ import (
 )
 
 func center(s string, width int) string {
+	// Ayuda a poner el texto en el centro de la pantalla.
 	if len(s) >= width {
 		return s
 	}
@@ -22,6 +23,7 @@ func center(s string, width int) string {
 }
 
 func main() {
+	// Aquí empieza el programa y se lee lo que escribe el usuario.
 	fmt.Println("\n" + strings.Repeat("=", 70))
 	fmt.Println(center("ANALIZADOR LÉXICO-SINTÁCTICO-SEMÁNTICO (PASCAL-LIKE)", 70))
 	fmt.Println(strings.Repeat("=", 70))
@@ -31,6 +33,7 @@ func main() {
 	var lines []string
 	scanner := bufio.NewScanner(os.Stdin)
 	lineNum := 1
+	// Leemos el código línea por línea hasta que el usuario escriba FIN.
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "FIN" {
@@ -50,6 +53,7 @@ func main() {
 	s := semantic.New()
 	symbols, semanticErrors := s.Analyze(tokens)
 
+	// Mostramos el resultado de todas las fases en una sola vista.
 	printResults(lexErrors, syntaxErrors, semanticErrors, symbols)
 }
 
