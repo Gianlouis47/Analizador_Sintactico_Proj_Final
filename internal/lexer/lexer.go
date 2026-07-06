@@ -6,27 +6,7 @@ import (
 	"unicode"
 )
 
-type TokenType int
-
-const (
-	IDENTIFIER TokenType = iota
-	ASSIGN
-	OPERATOR
-	INTEGER
-	REAL
-	STRING
-	KEYWORD
-	PUNCTUATION
-	COMMENT
-	ERROR
-)
-
-type Token struct {
-	Value string
-	Type  TokenType
-	Line  int
-}
-
+// SyntaxError representa un error encontrado durante el análisis léxico
 type SyntaxError struct {
 	Line    int
 	Message string
@@ -72,7 +52,7 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 		// Comentarios multilinea { ... }
 		if ch == '{' {
 			startLine := l.currentLine
-			l.pos++ // Skip '{'
+			l.pos++
 			for l.pos < len(l.source) && l.source[l.pos] != '}' {
 				if l.source[l.pos] == '\n' {
 					l.currentLine++
@@ -87,9 +67,9 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 				})
 				break
 			}
-			l.pos++ // Skip '}'
+			l.pos++
 			l.tokens = append(l.tokens, Token{
-				Value: l.source[l.pos-1 : l.pos], // Simplificado
+				Value: "{}",
 				Type:  COMMENT,
 				Line:  startLine,
 			})
@@ -100,7 +80,7 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 		if ch == '"' || ch == '\'' {
 			quote := byte(ch)
 			startLine := l.currentLine
-			l.pos++ // Skip quote
+			l.pos++
 			for l.pos < len(l.source) && l.source[l.pos] != quote {
 				if l.source[l.pos] == '\n' {
 					l.currentLine++
@@ -115,9 +95,9 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 				})
 				break
 			}
-			l.pos++ // Skip closing quote
+			l.pos++
 			l.tokens = append(l.tokens, Token{
-				Value: l.source[l.pos-1 : l.pos], // Incluye comillas
+				Value: l.source[l.pos-1 : l.pos],
 				Type:  STRING,
 				Line:  startLine,
 			})
@@ -130,11 +110,10 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 			if twoChar == ":=" || twoChar == "<>" || twoChar == "<=" || twoChar == ">=" {
 				l.tokens = append(l.tokens, Token{
 					Value: twoChar,
-					Type:  ASSIGN, // := es asignación, otros son operadores
+					Type:  ASSIGN,
 					Line:  l.currentLine,
 				})
 				if twoChar != ":=" {
-					// Corregir tipo si no es :=
 					last := &l.tokens[len(l.tokens)-1]
 					last.Type = OPERATOR
 				}
@@ -158,7 +137,7 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 			continue
 		}
 
-		// Números (con validación de puntos)
+		// Números
 		if unicode.IsDigit(rune(ch)) {
 			start := l.pos
 			dots := 0
@@ -214,9 +193,8 @@ func (l *Lexer) Tokenize(code string) ([]Token, []SyntaxError) {
 	return l.tokens, l.errors
 }
 
-// Métodos auxiliares (simplificados para 30%)
 func (l *Lexer) skipWhitespace() {
-	for l.pos < len(l.source) && strings.ContainsRune(" \t\r", rune(l.source[l.pos])) {
+	for l.pos < len(l.source) && strings.ContainsRune(" \t\r\n", rune(l.source[l.pos])) {
 		if l.source[l.pos] == '\n' {
 			l.currentLine++
 		}
